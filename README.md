@@ -20,19 +20,19 @@ cd university-management-core-service
 3. `Install project dependencies:` Next, install the project dependencies by running the following command:
 
 ```bash
-yarn install
+pnpm install
 ```
 
 4. Configure Prisma and the database connection:
 
 - Add Prisma as a development dependency by running the following command:
 ```bash
-yarn add prisma --save-dev
+pnpm install prisma --save-dev
 ```
 
 - Set up your Prisma project by creating the Prisma schema file using the following command:
 ```bash
-npx prisma init
+pnpx prisma init --datasource-provider postgresql
 ```
 
 - Open the prisma/schema.prisma file and configure your database connection details.
@@ -53,13 +53,13 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=SCHEMA"
 6. Migrate the database schema: Use the following command to create and apply the initial database schema:
 
 ```bash
-npx prisma migrate dev --name init
+pnpx prisma migrate dev --name init
 ```
 This command creates a new migration file based on your schema changes and applies it to your database.
 
 6. `Install Prisma Client:` Install the Prisma Client library by running the following command:
 ```bash
-yarn add @prisma/client
+pnpm install @prisma/client
 ```
 
 This command installs the Prisma Client, which provides an interface to interact with your database.
