@@ -1,0 +1,42 @@
+Tue Aug 22 2023 7:10:26 } [PH] error: 🐱‍🏍 globalErrorHandler ~~ [
+  {
+    "code": "invalid_type",
+    "expected": "number",
+    "received": "string",
+    "path": [
+      "body",
+      "year"
+    ],
+    "message": "Expected number, received string"
+  }
+]
+Tue Aug 22 2023 7:21:46 } [PH] error: 🐱‍🏍 globalErrorHandler ~~ [
+  {
+    "received": "Falls",
+    "code": "invalid_enum_value",
+    "options": [
+      "Autumn",
+      "Summer",
+      "Fall"
+    ],
+    "path": [
+      "body",
+      "title"
+    ],
+    "message": "Invalid enum value. Expected 'Autumn' | 'Summer' | 'Fall', received 'Falls'"
+  },
+  {
+    "received": "04",
+    "code": "invalid_enum_value",
+    "options": [
+      "01",
+      "02",
+      "03"
+    ],
+    "path": [
+      "body",
+      "code"
+    ],
+    "message": "Invalid enum value. Expected '01' | '02' | '03', received '04'"
+  }
+]

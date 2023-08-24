@@ -1,0 +1,46 @@
+Wed Aug 23 2023 7:17:34 } [PH] error: 🐱‍🏍 globalErrorHandler ~~ 
+Invalid `prisma.academicSemester.findMany()` invocation in
+D:\Programming-hero\Level-2\Milestone-7\university-management-core-service\src\app\modules\academicSemester\academicSemester.service.ts:62:48
+
+  59 //   sortConditions[sortBy] = sortOrder;
+  60 // }
+  61 
+→ 62 const result = await prisma.academicSemester.findMany({
+       where: {
+         AND: [
+           {
+             OR: [
+               {
+                 title: {
+                   contains: "03",
+                   mode: "insensitive"
+                 }
+               },
+               {
+                 code: {
+                   contains: "03",
+                   mode: "insensitive"
+                 }
+               },
+               {
+                 year: {
+                   contains: "03",
+                   mode: "insensitive"
+                 }
+               }
+             ]
+           },
+           {
+             $and: [
+               {
+                 year: "2023"
+               }
+             ]
+           }
+         ]
+       },
+       skip: 0,
+       take: 1
+     })
+
+Unknown argument `$and`. Did you mean `id`? Available options are listed in green.
