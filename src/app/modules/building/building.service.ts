@@ -1,32 +1,30 @@
-import { AcademicFaculty, Prisma } from '@prisma/client';
+import { Building, Prisma } from '@prisma/client';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
-import { academicFacultySearchableFields } from './academicFaculty.constant';
-import { IAcademicFacultyFilters } from './academicFaculty.interface';
+import { buildingSearchableFields } from './building.constant';
+import { IBuildingFilterRequest } from './building.interface';
 
-const insertIntoDB = async (
-  data: AcademicFaculty
-): Promise<AcademicFaculty> => {
-  const result = await prisma.academicFaculty.create({
+const createBuilding = async (data: Building): Promise<Building> => {
+  const result = await prisma.building.create({
     data,
   });
   return result;
 };
 
-const getAllAcademicFaculties = async (
-  filters: IAcademicFacultyFilters,
+const getAllBuildings = async (
+  filters: IBuildingFilterRequest,
   pagination: IPaginationOptions
-): Promise<IGenericResponse<AcademicFaculty[]>> => {
+): Promise<IGenericResponse<Building[]>> => {
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(pagination);
   const andConditions = [];
-  // Search needs OR for searching in specified fields
+  // Search needs $or for searching in specified fields
   if (searchTerm) {
     andConditions.push({
-      OR: academicFacultySearchableFields.map(field => ({
+      OR: buildingSearchableFields.map(field => ({
         [field]: {
           contains: searchTerm,
           mode: 'insensitive',
@@ -34,7 +32,7 @@ const getAllAcademicFaculties = async (
       })),
     });
   }
-  const whereConditions: Prisma.AcademicFacultyWhereInput =
+  const whereConditions: Prisma.BuildingWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
   if (Object.keys(filtersData).length) {
     andConditions.push({
@@ -49,14 +47,14 @@ const getAllAcademicFaculties = async (
     sortConditions[sortBy] = sortOrder;
   }
 
-  const result = await prisma.academicFaculty.findMany({
+  const result = await prisma.building.findMany({
     where: whereConditions,
     skip,
     take: limit,
     orderBy: sortConditions,
   });
 
-  const total = await prisma.academicFaculty.count();
+  const total = await prisma.building.count();
   return {
     meta: {
       total,
@@ -67,19 +65,19 @@ const getAllAcademicFaculties = async (
   };
 };
 
-const getSingleAcademicFaculty = async (id: string) => {
-  const result = await prisma.academicFaculty.findUnique({
+const getSingleBuilding = async (id: string) => {
+  const result = await prisma.building.findUnique({
     where: {
       id,
     },
   });
   return result;
 };
-const updateSingleAcademicFaculty = async (
+const updateSingleBuilding = async (
   id: string,
-  data: Partial<AcademicFaculty>
-): Promise<AcademicFaculty> => {
-  const result = await prisma.academicFaculty.update({
+  data: Partial<Building>
+): Promise<Building> => {
+  const result = await prisma.building.update({
     where: {
       id,
     },
@@ -87,10 +85,8 @@ const updateSingleAcademicFaculty = async (
   });
   return result;
 };
-const deleteSingleAcademicFaculty = async (
-  id: string
-): Promise<AcademicFaculty> => {
-  const result = await prisma.academicFaculty.delete({
+const deleteSingleBuilding = async (id: string): Promise<Building> => {
+  const result = await prisma.building.delete({
     where: {
       id,
     },
@@ -98,10 +94,10 @@ const deleteSingleAcademicFaculty = async (
   return result;
 };
 
-export const AcademicFacultyService = {
-  insertIntoDB,
-  getAllAcademicFaculties,
-  getSingleAcademicFaculty,
-  updateSingleAcademicFaculty,
-  deleteSingleAcademicFaculty,
+export const BuildingService = {
+  createBuilding,
+  getAllBuildings,
+  getSingleBuilding,
+  deleteSingleBuilding,
+  updateSingleBuilding,
 };

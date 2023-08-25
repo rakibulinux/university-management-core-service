@@ -10,7 +10,6 @@ import { AcademicDepartmentService } from './academicDepartment.service';
 
 const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   const result = await AcademicDepartmentService.insertIntoDB(req.body);
-  console.log(req.body);
   sendResponse<AcademicDepartment>(res, {
     statusCode: httpStatus.OK,
     success: true,

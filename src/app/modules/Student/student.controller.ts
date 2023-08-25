@@ -13,7 +13,7 @@ const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Student>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Academic Semester Created!',
+    message: 'Students Created!',
     data: result,
   });
 });
@@ -24,7 +24,7 @@ const getAllStudent = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Student[]>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Get All Academic Semesters Successfully',
+    message: 'Get All Studentss Successfully',
     meta: result.meta,
     data: result.data,
   });
@@ -35,7 +35,7 @@ const getSingleStudent = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Student>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Get Single Academic Semester Successfully',
+    message: 'Get Single Students Successfully',
 
     data: result,
   });
@@ -47,7 +47,7 @@ const updateSingleStudent = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Student>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Academic Semester Updated Successfully!',
+    message: 'Students Updated Successfully!',
     data: result,
   });
 });
@@ -57,7 +57,7 @@ const deleteSingleStudent = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Student>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Academic Semester Deleted Successfully!',
+    message: 'Students Deleted Successfully!',
     data: result,
   });
 });

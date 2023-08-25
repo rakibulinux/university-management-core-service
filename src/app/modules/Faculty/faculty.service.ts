@@ -20,7 +20,6 @@ const getAllFaculties = async (
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(pagination);
-  console.log(filtersData);
   const andConditions = [];
   // Search needs $or for searching in specified fields
   if (searchTerm) {
@@ -67,7 +66,6 @@ const getAllFaculties = async (
 };
 
 const getSingleFaculty = async (id: string) => {
-  console.log(id);
   const result = await prisma.faculty.findUnique({
     where: {
       id,

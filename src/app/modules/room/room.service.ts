@@ -1,32 +1,33 @@
-import { AcademicFaculty, Prisma } from '@prisma/client';
+import { Prisma, Room } from '@prisma/client';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
-import { academicFacultySearchableFields } from './academicFaculty.constant';
-import { IAcademicFacultyFilters } from './academicFaculty.interface';
+import { roomSearchableFields } from './room.constant';
+import { IRoomFilterRequest } from './room.interface';
 
-const insertIntoDB = async (
-  data: AcademicFaculty
-): Promise<AcademicFaculty> => {
-  const result = await prisma.academicFaculty.create({
+const createRoom = async (data: Room): Promise<Room> => {
+  const result = await prisma.room.create({
     data,
+    include: {
+      building: true,
+    },
   });
   return result;
 };
 
-const getAllAcademicFaculties = async (
-  filters: IAcademicFacultyFilters,
+const getAllRooms = async (
+  filters: IRoomFilterRequest,
   pagination: IPaginationOptions
-): Promise<IGenericResponse<AcademicFaculty[]>> => {
+): Promise<IGenericResponse<Room[]>> => {
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
     paginationHelpers.calculatePagination(pagination);
   const andConditions = [];
-  // Search needs OR for searching in specified fields
+  // Search needs $or for searching in specified fields
   if (searchTerm) {
     andConditions.push({
-      OR: academicFacultySearchableFields.map(field => ({
+      OR: roomSearchableFields.map(field => ({
         [field]: {
           contains: searchTerm,
           mode: 'insensitive',
@@ -34,7 +35,7 @@ const getAllAcademicFaculties = async (
       })),
     });
   }
-  const whereConditions: Prisma.AcademicFacultyWhereInput =
+  const whereConditions: Prisma.RoomWhereInput =
     andConditions.length > 0 ? { AND: andConditions } : {};
   if (Object.keys(filtersData).length) {
     andConditions.push({
@@ -49,14 +50,14 @@ const getAllAcademicFaculties = async (
     sortConditions[sortBy] = sortOrder;
   }
 
-  const result = await prisma.academicFaculty.findMany({
+  const result = await prisma.room.findMany({
     where: whereConditions,
     skip,
     take: limit,
     orderBy: sortConditions,
   });
 
-  const total = await prisma.academicFaculty.count();
+  const total = await prisma.room.count();
   return {
     meta: {
       total,
@@ -67,19 +68,19 @@ const getAllAcademicFaculties = async (
   };
 };
 
-const getSingleAcademicFaculty = async (id: string) => {
-  const result = await prisma.academicFaculty.findUnique({
+const getSingleRoom = async (id: string) => {
+  const result = await prisma.room.findUnique({
     where: {
       id,
     },
   });
   return result;
 };
-const updateSingleAcademicFaculty = async (
+const updateSingleRoom = async (
   id: string,
-  data: Partial<AcademicFaculty>
-): Promise<AcademicFaculty> => {
-  const result = await prisma.academicFaculty.update({
+  data: Partial<Room>
+): Promise<Room> => {
+  const result = await prisma.room.update({
     where: {
       id,
     },
@@ -87,10 +88,8 @@ const updateSingleAcademicFaculty = async (
   });
   return result;
 };
-const deleteSingleAcademicFaculty = async (
-  id: string
-): Promise<AcademicFaculty> => {
-  const result = await prisma.academicFaculty.delete({
+const deleteSingleRoom = async (id: string): Promise<Room> => {
+  const result = await prisma.room.delete({
     where: {
       id,
     },
@@ -98,10 +97,10 @@ const deleteSingleAcademicFaculty = async (
   return result;
 };
 
-export const AcademicFacultyService = {
-  insertIntoDB,
-  getAllAcademicFaculties,
-  getSingleAcademicFaculty,
-  updateSingleAcademicFaculty,
-  deleteSingleAcademicFaculty,
+export const RoomService = {
+  createRoom,
+  getAllRooms,
+  getSingleRoom,
+  deleteSingleRoom,
+  updateSingleRoom,
 };
