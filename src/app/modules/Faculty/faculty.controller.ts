@@ -1,4 +1,4 @@
-import { Faculty } from '@prisma/client';
+import { CourseFaculty, Faculty } from '@prisma/client';
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { paginationFields } from '../../../constants/pagination';
@@ -62,10 +62,45 @@ const deleteSingleFaculty = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const assignCourses = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const courses = req.body.courses;
+  const result = await FacultyService.assignCourses(id, courses);
+
+  sendResponse<CourseFaculty[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `${
+      result
+        ? 'Course Faculty Assigned Successfully!'
+        : `No Faculty Find For This ID: ${req.params.id}`
+    }`,
+    data: result,
+  });
+});
+const removeAssignCourses = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const Courses = req.body.Courses;
+  const result = await FacultyService.removeAssignCourses(id, Courses);
+
+  sendResponse<CourseFaculty[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `${
+      result
+        ? 'Course Faculty Deleted Successfully!'
+        : `No Faculty Find For This ID: ${req.params.id}`
+    }`,
+    data: result,
+  });
+});
+
 export const FacultyController = {
   insertIntoDB,
   getAllFaculties,
   getSingleFaculty,
   updateSingleFaculty,
   deleteSingleFaculty,
+  assignCourses,
+  removeAssignCourses,
 };
