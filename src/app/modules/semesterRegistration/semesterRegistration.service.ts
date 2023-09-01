@@ -2,6 +2,7 @@ import {
   Prisma,
   SemesterRegistration,
   SemesterRegistrationStatus,
+  StudentSemesterRegistration,
 } from '@prisma/client';
 import httpStatus from 'http-status';
 import ApiError from '../../../errors/ApiError';
@@ -41,6 +42,78 @@ const createSemesterRegistration = async (
     },
   });
   return result;
+};
+const createStartMyRegistration = async (
+  authUserId: string
+): Promise<{
+  semesterRegistration: SemesterRegistration | null;
+  studentSemesterRegistration: StudentSemesterRegistration | null;
+}> => {
+  const studentInfo = await prisma.student.findFirst({
+    where: {
+      studentId: authUserId,
+    },
+  });
+  console.log(studentInfo);
+  if (!studentInfo) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Student info not found for this id ${authUserId}`
+    );
+  }
+
+  const semesterRegistrationInfo = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: {
+        in: ['ONGOING', 'UPCOMING'],
+      },
+    },
+  });
+  console.log(semesterRegistrationInfo);
+  if (semesterRegistrationInfo?.status === 'UPCOMING') {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Registration is not started yet'
+    );
+  }
+
+  let studentRegistration = await prisma.studentSemesterRegistration.findFirst({
+    where: {
+      student: {
+        id: studentInfo?.id,
+      },
+      semesterRegistration: {
+        id: semesterRegistrationInfo?.id,
+      },
+    },
+  });
+  if (!studentRegistration) {
+    studentRegistration = await prisma.studentSemesterRegistration.create({
+      data: {
+        student: {
+          connect: {
+            id: studentInfo?.id,
+          },
+        },
+        semesterRegistration: {
+          connect: {
+            id: semesterRegistrationInfo?.id,
+          },
+        },
+      },
+    });
+  }
+
+  // const result = await prisma.semesterRegistration.create({
+  //   studentInfo,
+  //   include: {
+  //     academicSemester: true,
+  //   },
+  // });
+  return {
+    semesterRegistration: semesterRegistrationInfo,
+    studentSemesterRegistration: studentRegistration,
+  };
 };
 
 const getAllSemesterRegistrations = async (
@@ -171,4 +244,5 @@ export const SemesterRegistrationService = {
   getSingleSemesterRegistration,
   updateSingleSemesterRegistration,
   deleteSingleSemesterRegistration,
+  createStartMyRegistration,
 };

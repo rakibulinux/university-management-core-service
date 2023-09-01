@@ -13,11 +13,27 @@ const createSemesterRegistration = catchAsync(
     const result = await SemesterRegistrationService.createSemesterRegistration(
       req.body
     );
-    console.log(req.body);
+
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: 'Semester Registration Created successufully!',
+      data: result,
+    });
+  }
+);
+
+const createStartMyRegistration = catchAsync(
+  async (req: Request, res: Response) => {
+    const user = (req as any).user;
+    const result = await SemesterRegistrationService.createStartMyRegistration(
+      user.studentId
+    );
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Start Semester Registration Created successufully!',
       data: result,
     });
   }
@@ -97,4 +113,5 @@ export const SemesterRegistrationController = {
   getSingleSemesterRegistration,
   updateSingleSemesterRegistration,
   deleteSingleSemesterRegistration,
+  createStartMyRegistration,
 };

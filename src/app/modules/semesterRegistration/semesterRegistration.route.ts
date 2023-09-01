@@ -21,6 +21,11 @@ router.get(
 );
 router.get('/', SemesterRegistrationController.getAllSemesterRegistrations);
 router.post(
+  '/start-registration',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.createStartMyRegistration
+);
+router.post(
   '/',
   validateRequest(
     SemesterRegistrationValidation.createSemesterRegistrationZodSchema
