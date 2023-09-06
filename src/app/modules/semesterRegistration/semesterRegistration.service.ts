@@ -10,8 +10,12 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
+import { StudentSemesterRegistrationCourseService } from '../studentSemesterRegistrationCourse/studentSemesterRegistrationCourse.service';
 import { semesterRegistrationSearchableFields } from './semesterRegistration.constant';
-import { ISemesterRegistrationFilterRequest } from './semesterRegistration.interface';
+import {
+  IEnrollCoursePayload,
+  ISemesterRegistrationFilterRequest,
+} from './semesterRegistration.interface';
 
 const createSemesterRegistration = async (
   data: SemesterRegistration
@@ -43,6 +47,113 @@ const createSemesterRegistration = async (
   });
   return result;
 };
+
+const enrollIntoCourse = async (
+  authUserId: string,
+  payload: IEnrollCoursePayload
+): Promise<{ message: string }> => {
+  return StudentSemesterRegistrationCourseService.enrollIntoCourse(
+    authUserId,
+    payload
+  );
+};
+const withdrawFromCourse = async (
+  authUserId: string,
+  payload: IEnrollCoursePayload
+) => {
+  return StudentSemesterRegistrationCourseService.withdrawFromCourse(
+    authUserId,
+    payload
+  );
+};
+
+const confirmMyRegistration = async (
+  authUserId: string
+): Promise<{ message: string }> => {
+  const semesterRegistration = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: 'ONGOING',
+    },
+  });
+
+  const studentSemesterRegistration =
+    await prisma.studentSemesterRegistration.findFirst({
+      where: {
+        semesterRegistration: {
+          id: semesterRegistration?.id,
+        },
+        student: {
+          studentId: authUserId,
+        },
+      },
+    });
+
+  if (!studentSemesterRegistration) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'You are not recognized for this semester!'
+    );
+  }
+
+  if (studentSemesterRegistration.totalCreditsTaken === 0) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'You are not enrolled any message'
+    );
+  }
+
+  if (
+    studentSemesterRegistration.totalCreditsTaken &&
+    semesterRegistration?.minCredit &&
+    semesterRegistration.maxCredit &&
+    (studentSemesterRegistration.totalCreditsTaken <
+      semesterRegistration?.minCredit ||
+      studentSemesterRegistration.totalCreditsTaken >
+        semesterRegistration?.maxCredit)
+  ) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `You can take only ${semesterRegistration.minCredit} to ${semesterRegistration.maxCredit}`
+    );
+  }
+
+  await prisma.studentSemesterRegistration.update({
+    where: {
+      id: studentSemesterRegistration.id,
+    },
+    data: {
+      isConfirmed: true,
+    },
+  });
+  return {
+    message: 'Your registration is confirmed',
+  };
+};
+const getMyRegistration = async (authUserId: string) => {
+  const semesterRegistration = await prisma.semesterRegistration.findFirst({
+    where: {
+      status: 'ONGOING',
+    },
+  });
+
+  const studentSemesterRegistration =
+    await prisma.studentSemesterRegistration.findFirst({
+      where: {
+        semesterRegistration: {
+          id: semesterRegistration?.id,
+        },
+        student: {
+          studentId: authUserId,
+        },
+      },
+    });
+
+  return {
+    semesterRegistration,
+    studentSemesterRegistration,
+  };
+};
+
 const createStartMyRegistration = async (
   authUserId: string
 ): Promise<{
@@ -245,4 +356,8 @@ export const SemesterRegistrationService = {
   updateSingleSemesterRegistration,
   deleteSingleSemesterRegistration,
   createStartMyRegistration,
+  enrollIntoCourse,
+  withdrawFromCourse,
+  confirmMyRegistration,
+  getMyRegistration,
 };

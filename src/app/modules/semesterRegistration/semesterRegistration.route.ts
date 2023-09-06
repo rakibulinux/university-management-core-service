@@ -16,14 +16,41 @@ router.delete(
   SemesterRegistrationController.deleteSingleSemesterRegistration
 );
 router.get(
+  '/get-my-registration',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.getMyRegistration
+);
+router.get(
   '/:id',
   SemesterRegistrationController.getSingleSemesterRegistration
 );
 router.get('/', SemesterRegistrationController.getAllSemesterRegistrations);
+
 router.post(
   '/start-registration',
   auth(ENUM_USER_ROLE.STUDENT),
   SemesterRegistrationController.createStartMyRegistration
+);
+router.post(
+  '/enroll-into-course',
+  auth(ENUM_USER_ROLE.STUDENT),
+  validateRequest(
+    SemesterRegistrationValidation.createEnrollAndWithdrawCourseZodSchema
+  ),
+  SemesterRegistrationController.enrollIntoCourse
+);
+router.post(
+  '/withdraw-from-course',
+  auth(ENUM_USER_ROLE.STUDENT),
+  validateRequest(
+    SemesterRegistrationValidation.createEnrollAndWithdrawCourseZodSchema
+  ),
+  SemesterRegistrationController.withdrawFromCourse
+);
+router.post(
+  '/confirm-my-registration',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.confirmMyRegistration
 );
 router.post(
   '/',
