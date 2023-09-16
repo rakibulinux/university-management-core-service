@@ -19,6 +19,11 @@ router.patch(
   validateRequest(StudentValidation.updateStudentZodSchema),
   StudentController.updateSingleStudent
 );
+router.get(
+  '/my-courses',
+  auth(ENUM_USER_ROLE.STUDENT),
+  StudentController.myCourses
+);
 router.get('/:id', StudentController.getSingleStudent);
 router.delete(
   '/:id',

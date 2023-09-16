@@ -103,6 +103,18 @@ const getMyRegistration = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const startNewSemester = catchAsync(async (req: Request, res: Response) => {
+  const result = await SemesterRegistrationService.startNewSemester(
+    req.params.id
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Start New Semester successufully!',
+    data: result,
+  });
+});
 const getAllSemesterRegistrations = catchAsync(
   async (req: Request, res: Response) => {
     const filters = pick(req.query, semesterRegistrationFilterableFields);
@@ -183,4 +195,5 @@ export const SemesterRegistrationController = {
   withdrawFromCourse,
   confirmMyRegistration,
   getMyRegistration,
+  startNewSemester,
 };

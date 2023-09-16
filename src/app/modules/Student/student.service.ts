@@ -4,7 +4,10 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
 import { studentSearchableFields } from './student.constant';
-import { IStudentFilterRequest } from './student.interface';
+import {
+  IStudentFilterRequest,
+  IStudentMyCoursesRequest,
+} from './student.interface';
 
 const insertIntoDB = async (data: Student): Promise<Student> => {
   const result = await prisma.student.create({
@@ -108,11 +111,40 @@ const deleteSingleStudent = async (id: string): Promise<Student> => {
   });
   return result;
 };
+const myCourses = async (
+  authUserId: string,
+  filter: IStudentMyCoursesRequest
+) => {
+  if (!filter.academicSemesterId) {
+    const currentSemester = await prisma.academicSemester.findFirst({
+      where: {
+        isCurrent: true,
+      },
+    });
+    filter.academicSemesterId = currentSemester?.id;
+  }
 
+  const result = await prisma.studentEnrolledCourse.findMany({
+    where: {
+      student: {
+        studentId: authUserId,
+      },
+      ...filter,
+    },
+    include: {
+      academicSemester: true,
+      student: true,
+      course: true,
+      studentEnrolledCourseMarks: true,
+    },
+  });
+  return result;
+};
 export const StudentService = {
   insertIntoDB,
   getAllStudents,
   getSingleStudent,
   updateSingleStudent,
   deleteSingleStudent,
+  myCourses,
 };

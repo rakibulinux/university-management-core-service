@@ -6,6 +6,12 @@ import { SemesterRegistrationController } from './semesterRegistration.controlle
 import { SemesterRegistrationValidation } from './semesterRegistration.validation';
 const router = express.Router();
 
+router.post(
+  '/:id/start-new-semester',
+  auth(ENUM_USER_ROLE.ADMIN),
+  SemesterRegistrationController.startNewSemester
+);
+
 router.patch(
   '/:id',
   // validateRequest(SemesterRegistrationValidation.updateSemesterRegistrationZodSchema),
@@ -31,6 +37,7 @@ router.post(
   auth(ENUM_USER_ROLE.STUDENT),
   SemesterRegistrationController.createStartMyRegistration
 );
+
 router.post(
   '/enroll-into-course',
   auth(ENUM_USER_ROLE.STUDENT),

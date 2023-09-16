@@ -40,6 +40,18 @@ const getSingleStudent = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const myCourses = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const filter = pick(req.query, ['courseId', 'academicSemesterId']);
+  const result = await StudentService.myCourses(user.studentId, filter);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Get Single Students Successfully',
+
+    data: result,
+  });
+});
 const updateSingleStudent = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const body = req.body;
@@ -68,4 +80,5 @@ export const StudentController = {
   getSingleStudent,
   updateSingleStudent,
   deleteSingleStudent,
+  myCourses,
 };
