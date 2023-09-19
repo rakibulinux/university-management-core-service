@@ -35,7 +35,7 @@ const getSingleFaculty = catchAsync(async (req: Request, res: Response) => {
   sendResponse<Faculty>(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Get Single  Faculty Successfully',
+    message: 'Get Single Faculty Successfully',
 
     data: result,
   });
@@ -94,6 +94,22 @@ const removeAssignCourses = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+const myCourses = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const filters = pick(req.query, ['academicSemesterId', 'courseId']);
+  const result = await FacultyService.myCourses(user, filters);
+
+  sendResponse<CourseFaculty[]>(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `${
+      result
+        ? 'My Courses Fatched Successfully!'
+        : `No Faculty Find For This ID: ${req.params.id}`
+    }`,
+    data: result,
+  });
+});
 
 export const FacultyController = {
   insertIntoDB,
@@ -103,4 +119,5 @@ export const FacultyController = {
   deleteSingleFaculty,
   assignCourses,
   removeAssignCourses,
+  myCourses,
 };

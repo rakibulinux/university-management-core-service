@@ -10,23 +10,28 @@ router.post(
   '/:id/assign-courses',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   validateRequest(FacultyValidation.assignOrRemoveCoursesZodValidation),
-  FacultyController.assignCourses
+  FacultyController.assignCourses,
 );
 router.delete(
   '/:id/remove-courses',
   validateRequest(FacultyValidation.assignOrRemoveCoursesZodValidation),
-  FacultyController.removeAssignCourses
+  FacultyController.removeAssignCourses,
 );
 router.post(
   '/create-faculty',
   validateRequest(FacultyValidation.createFacultyZodSchema),
-  FacultyController.insertIntoDB
+  FacultyController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(FacultyValidation.updateFacultyZodSchema),
-  FacultyController.updateSingleFaculty
+  FacultyController.updateSingleFaculty,
+);
+router.get(
+  '/my-courses',
+  auth(ENUM_USER_ROLE.FACULTY),
+  FacultyController.myCourses,
 );
 router.get('/:id', FacultyController.getSingleFaculty);
 router.delete('/:id', FacultyController.deleteSingleFaculty);
