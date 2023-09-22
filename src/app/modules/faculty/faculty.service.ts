@@ -4,7 +4,10 @@ import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
 import { facultySearchableFields } from './faculty.constant';
-import { IFacultyFilterRequest } from './faculty.interface';
+import {
+  IFacultyFilterRequest,
+  IOfferedCourseSection,
+} from './faculty.interface';
 
 const insertIntoDB = async (data: Faculty): Promise<Faculty> => {
   const result = await prisma.faculty.create({
@@ -80,6 +83,7 @@ const myCourses = async (
     courseId: string | undefined | null;
   },
 ) => {
+  console.log(authUserId);
   if (!filters.academicSemesterId) {
     const currentSemester = await prisma.academicSemester.findFirst({
       where: {
@@ -88,7 +92,7 @@ const myCourses = async (
     });
     filters.academicSemesterId = currentSemester?.id;
   }
-  const offeredCourseSection = await prisma.offeredCourseSection.findMany({
+  const offeredCourseSections = await prisma.offeredCourseSection.findMany({
     where: {
       offeredCourseClassSchedules: {
         some: {
@@ -122,7 +126,106 @@ const myCourses = async (
       },
     },
   });
-  console.log(offeredCourseSection);
+  // const courseAndSchedule = offeredCourseSections.reduce(
+  //   (acc: IOfferedCourseSection[], obj: IOfferedCourseSection) => {
+  //     const course = obj.offeredCourse.course;
+  //     const classSchedules = obj.offeredCourseClassSchedules;
+
+  //     const existingCourse = acc.find(
+  //       (item: IOfferedCourseSection) => item?.course?.id === course.id,
+  //     );
+
+  //     if (existingCourse) {
+  //       if (!existingCourse.sections) {
+  //         existingCourse.sections = [];
+  //       }
+  //       existingCourse.sections.push({
+  //         section: obj,
+  //         classSchedules: classSchedules, // Ensure classSchedules matches the expected type
+  //       });
+  //     } else {
+  //       // Create a new IOfferedCourseSection object with the required properties
+  //       const newCourseSection: IOfferedCourseSection = {
+  //         id: obj.id,
+  //         title: obj.title,
+  //         maxCapacity: obj.maxCapacity,
+  //         currentlyEnrolledStudent: obj.currentlyEnrolledStudent,
+  //         createdAt: obj.createdAt,
+  //         updatedAt: obj.updatedAt,
+  //         offeredCourseId: obj.offeredCourseId,
+  //         semesterRegistrationId: obj.semesterRegistrationId,
+  //         offeredCourse: obj.offeredCourse,
+  //         offeredCourseClassSchedules: classSchedules, // Ensure classSchedules matches the expected type
+  //         sections: obj.sections, // Initialize sections as an empty array
+  //       };
+  //       console.log(newCourseSection.sections);
+  //       acc.push(newCourseSection);
+  //     }
+  //     return acc;
+  //   },
+  //   [],
+  // );
+
+  const courseAndSchedule: IOfferedCourseSection[] =
+    offeredCourseSections.reduce(
+      (acc: IOfferedCourseSection[], obj: IOfferedCourseSection) => {
+        console.log('I am obj', obj);
+        console.log('I am acc', acc);
+
+        const course = obj.offeredCourse.course;
+        const classSchedules = obj.offeredCourseClassSchedules;
+
+        const exsistingCourse = acc.find(
+          (item: IOfferedCourseSection) => item.course?.id === course.id,
+        );
+
+        if (exsistingCourse) {
+          exsistingCourse?.sections?.push({
+            section: obj,
+            classSchedules,
+          });
+        } else {
+          acc.push({
+            course,
+            sections: [
+              {
+                section: obj,
+                classSchedules,
+              },
+            ],
+            id: obj.id,
+            title: obj.title,
+            maxCapacity: obj.maxCapacity,
+            currentlyEnrolledStudent: obj.currentlyEnrolledStudent,
+            createdAt: obj.createdAt,
+            updatedAt: obj.updatedAt,
+            offeredCourseId: obj.offeredCourseId,
+            semesterRegistrationId: obj.semesterRegistrationId,
+            offeredCourse: {
+              id: obj.offeredCourse.id,
+              createdAt: obj.offeredCourse.createdAt,
+              updatedAt: obj.offeredCourse.updatedAt,
+              courseId: obj.offeredCourse.courseId,
+              academicDepartmentId: obj.offeredCourse.academicDepartmentId,
+              semesterRegistrationId: obj.offeredCourse.semesterRegistrationId,
+              course: {
+                id: obj.offeredCourse.course.id,
+                title: obj.offeredCourse.course.title,
+                code: obj.offeredCourse.course.code,
+                credits: obj.offeredCourse.course.credits,
+                createdAt: obj.offeredCourse.course.createdAt,
+                updatedAt: obj.offeredCourse.course.updatedAt,
+              },
+            },
+            offeredCourseClassSchedules: obj.offeredCourseClassSchedules,
+          });
+        }
+        return acc;
+      },
+      [],
+    );
+
+  return courseAndSchedule;
 };
 const updateSingleFaculty = async (
   id: string,
