@@ -9,63 +9,68 @@ const router = express.Router();
 router.post(
   '/:id/start-new-semester',
   auth(ENUM_USER_ROLE.ADMIN),
-  SemesterRegistrationController.startNewSemester
+  SemesterRegistrationController.startNewSemester,
 );
 
 router.patch(
   '/:id',
   // validateRequest(SemesterRegistrationValidation.updateSemesterRegistrationZodSchema),
-  SemesterRegistrationController.updateSingleSemesterRegistration
+  SemesterRegistrationController.updateSingleSemesterRegistration,
 );
 router.delete(
   '/:id',
-  SemesterRegistrationController.deleteSingleSemesterRegistration
+  SemesterRegistrationController.deleteSingleSemesterRegistration,
 );
 router.get(
   '/get-my-registration',
   auth(ENUM_USER_ROLE.STUDENT),
-  SemesterRegistrationController.getMyRegistration
+  SemesterRegistrationController.getMyRegistration,
+);
+router.get(
+  '/get-my-semester',
+  auth(ENUM_USER_ROLE.STUDENT),
+  SemesterRegistrationController.getMySemesterRegistration,
 );
 router.get(
   '/:id',
-  SemesterRegistrationController.getSingleSemesterRegistration
+  SemesterRegistrationController.getSingleSemesterRegistration,
 );
 router.get('/', SemesterRegistrationController.getAllSemesterRegistrations);
 
 router.post(
   '/start-registration',
   auth(ENUM_USER_ROLE.STUDENT),
-  SemesterRegistrationController.createStartMyRegistration
+  SemesterRegistrationController.createStartMyRegistration,
 );
 
 router.post(
   '/enroll-into-course',
   auth(ENUM_USER_ROLE.STUDENT),
   validateRequest(
-    SemesterRegistrationValidation.createEnrollAndWithdrawCourseZodSchema
+    SemesterRegistrationValidation.createEnrollAndWithdrawCourseZodSchema,
   ),
-  SemesterRegistrationController.enrollIntoCourse
+  SemesterRegistrationController.enrollIntoCourse,
 );
 router.post(
   '/withdraw-from-course',
   auth(ENUM_USER_ROLE.STUDENT),
   validateRequest(
-    SemesterRegistrationValidation.createEnrollAndWithdrawCourseZodSchema
+    SemesterRegistrationValidation.createEnrollAndWithdrawCourseZodSchema,
   ),
-  SemesterRegistrationController.withdrawFromCourse
+  SemesterRegistrationController.withdrawFromCourse,
 );
 router.post(
   '/confirm-my-registration',
   auth(ENUM_USER_ROLE.STUDENT),
-  SemesterRegistrationController.confirmMyRegistration
+  SemesterRegistrationController.confirmMyRegistration,
 );
 router.post(
   '/',
   validateRequest(
-    SemesterRegistrationValidation.createSemesterRegistrationZodSchema
+    SemesterRegistrationValidation.createSemesterRegistrationZodSchema,
   ),
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  SemesterRegistrationController.createSemesterRegistration
+  SemesterRegistrationController.createSemesterRegistration,
 );
 
 export const SemesterRegistrationRoute = router;

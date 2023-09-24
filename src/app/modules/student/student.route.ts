@@ -11,24 +11,34 @@ router.post(
   '/create-student',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
   validateRequest(StudentValidation.createStudentZodSchema),
-  StudentController.insertIntoDB
+  StudentController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(StudentValidation.updateStudentZodSchema),
-  StudentController.updateSingleStudent
+  StudentController.updateSingleStudent,
 );
 router.get(
   '/my-courses',
   auth(ENUM_USER_ROLE.STUDENT),
-  StudentController.myCourses
+  StudentController.myCourses,
+);
+router.get(
+  '/my-course-schedule',
+  auth(ENUM_USER_ROLE.STUDENT),
+  StudentController.getMyCourseSchedules,
+);
+router.get(
+  '/my-academic-info',
+  auth(ENUM_USER_ROLE.STUDENT),
+  StudentController.getMyAcademicInfo,
 );
 router.get('/:id', StudentController.getSingleStudent);
 router.delete(
   '/:id',
   auth(ENUM_USER_ROLE.SUPER_ADMIN, ENUM_USER_ROLE.ADMIN),
-  StudentController.deleteSingleStudent
+  StudentController.deleteSingleStudent,
 );
 router.get('/', StudentController.getAllStudent);
 

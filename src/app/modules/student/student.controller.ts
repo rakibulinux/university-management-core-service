@@ -40,18 +40,6 @@ const getSingleStudent = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-const myCourses = catchAsync(async (req: Request, res: Response) => {
-  const user = (req as any).user;
-  const filter = pick(req.query, ['courseId', 'academicSemesterId']);
-  const result = await StudentService.myCourses(user.studentId, filter);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Get Single Students Successfully',
-
-    data: result,
-  });
-});
 const updateSingleStudent = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
   const body = req.body;
@@ -74,6 +62,41 @@ const deleteSingleStudent = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const myCourses = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const filter = pick(req.query, ['courseId', 'academicSemesterId']);
+  const result = await StudentService.myCourses(user.userId, filter);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Get Single Students Successfully',
+
+    data: result,
+  });
+});
+const getMyCourseSchedules = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const filter = pick(req.query, ['courseId', 'academicSemesterId']);
+  const result = await StudentService.getMyCourseSchedules(user.userId, filter);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Get My Course Schedules Successfully',
+
+    data: result,
+  });
+});
+const getMyAcademicInfo = catchAsync(async (req: Request, res: Response) => {
+  const user = (req as any).user;
+  const result = await StudentService.getMyAcademicInfo(user.userId);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Get My Academic Info Successfully',
+
+    data: result,
+  });
+});
 export const StudentController = {
   insertIntoDB,
   getAllStudent,
@@ -81,4 +104,6 @@ export const StudentController = {
   updateSingleStudent,
   deleteSingleStudent,
   myCourses,
+  getMyCourseSchedules,
+  getMyAcademicInfo,
 };

@@ -1,4 +1,4 @@
-import { Prisma, Student } from '@prisma/client';
+import { Prisma, Student, StudentEnrolledCourseStatus } from '@prisma/client';
 import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
@@ -8,6 +8,7 @@ import {
   IStudentFilterRequest,
   IStudentMyCoursesRequest,
 } from './student.interface';
+import { StudentUtils } from './student.utils';
 
 const insertIntoDB = async (data: Student): Promise<Student> => {
   const result = await prisma.student.create({
@@ -23,7 +24,7 @@ const insertIntoDB = async (data: Student): Promise<Student> => {
 
 const getAllStudents = async (
   filters: IStudentFilterRequest,
-  pagination: IPaginationOptions
+  pagination: IPaginationOptions,
 ): Promise<IGenericResponse<Student[]>> => {
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
@@ -93,7 +94,7 @@ const getSingleStudent = async (id: string) => {
 };
 const updateSingleStudent = async (
   id: string,
-  data: Partial<Student>
+  data: Partial<Student>,
 ): Promise<Student> => {
   const result = await prisma.student.update({
     where: {
@@ -113,7 +114,7 @@ const deleteSingleStudent = async (id: string): Promise<Student> => {
 };
 const myCourses = async (
   authUserId: string,
-  filter: IStudentMyCoursesRequest
+  filter: IStudentMyCoursesRequest,
 ) => {
   if (!filter.academicSemesterId) {
     const currentSemester = await prisma.academicSemester.findFirst({
@@ -140,6 +141,99 @@ const myCourses = async (
   });
   return result;
 };
+const getMyCourseSchedules = async (
+  authUserId: string,
+  filter: IStudentMyCoursesRequest,
+) => {
+  console.log(authUserId);
+  if (!filter.academicSemesterId) {
+    const currentSemester = await prisma.academicSemester.findFirst({
+      where: {
+        isCurrent: true,
+      },
+    });
+    filter.academicSemesterId = currentSemester?.id;
+  }
+
+  const studentEnrolledCourses = await myCourses(authUserId, filter);
+
+  const studentEnrolledCourseIds = studentEnrolledCourses.map(
+    item => item.courseId,
+  );
+
+  const result = await prisma.studentSemesterRegistrationCourse.findMany({
+    where: {
+      student: {
+        studentId: authUserId,
+      },
+      semesterRegistration: {
+        academicSemester: {
+          id: filter.academicSemesterId,
+        },
+      },
+      offeredCourse: {
+        course: {
+          id: {
+            in: studentEnrolledCourseIds,
+          },
+        },
+      },
+    },
+    include: {
+      offeredCourse: {
+        include: {
+          course: true,
+        },
+      },
+      offeredCourseSection: {
+        include: {
+          offeredCourseClassSchedules: {
+            include: {
+              room: {
+                include: {
+                  building: true,
+                },
+              },
+              faculty: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  return result;
+};
+const getMyAcademicInfo = async (authUserId: string): Promise<any> => {
+  const academicInfo = await prisma.studentAcademicInfo.findFirst({
+    where: {
+      student: {
+        studentId: authUserId,
+      },
+    },
+  });
+  const enrolledCourses = await prisma.studentEnrolledCourse.findMany({
+    where: {
+      student: {
+        studentId: authUserId,
+      },
+      status: StudentEnrolledCourseStatus.COMPLETED,
+    },
+    include: {
+      course: true,
+      academicSemester: true,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+  console.log(enrolledCourses);
+  const groupByAcademicSemesterData =
+    StudentUtils.groupByAcademicSemester(enrolledCourses);
+  return {
+    academicInfo,
+    course: groupByAcademicSemesterData,
+  };
+};
 export const StudentService = {
   insertIntoDB,
   getAllStudents,
@@ -147,4 +241,6 @@ export const StudentService = {
   updateSingleStudent,
   deleteSingleStudent,
   myCourses,
+  getMyCourseSchedules,
+  getMyAcademicInfo,
 };
