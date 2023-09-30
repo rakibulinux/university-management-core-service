@@ -20,7 +20,7 @@ const router = express.Router();
 const moduleRoutes = [
   // ... routes
   {
-    path: '/academic-department',
+    path: '/academic-departments',
     route: AcademicDepartmentRouter,
   },
   {

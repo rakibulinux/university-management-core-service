@@ -6,24 +6,24 @@ import { AcademicDepartmentValidation } from './academicDepartment.validation';
 const router = express.Router();
 
 router.post(
-  '/create-department',
+  '/',
   validateRequest(
-    AcademicDepartmentValidation.createAcademicDepartmentZodSchema
+    AcademicDepartmentValidation.createAcademicDepartmentZodSchema,
   ),
-  AcademicDepartmentController.insertIntoDB
+  AcademicDepartmentController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(
-    AcademicDepartmentValidation.updateAcademicDepartmentZodSchema
+    AcademicDepartmentValidation.updateAcademicDepartmentZodSchema,
   ),
-  AcademicDepartmentController.updateSingleAcademicDepartment
+  AcademicDepartmentController.updateSingleAcademicDepartment,
 );
 router.get('/:id', AcademicDepartmentController.getSingleAcademicDepartment);
 router.delete(
   '/:id',
-  AcademicDepartmentController.deleteSingleAcademicDepartment
+  AcademicDepartmentController.deleteSingleAcademicDepartment,
 );
 router.get('/', AcademicDepartmentController.getAllAcademicDepartment);
 

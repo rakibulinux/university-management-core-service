@@ -3,11 +3,17 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
-import { academicDepartmentSearchableFields } from './academicDepartment.constant';
+import { RedisClient } from '../../../shared/redis';
+import {
+  EVENT_ACADEMIC_DEPARTMENT_CREATED,
+  EVENT_ACADEMIC_DEPARTMENT_DELETE,
+  EVENT_ACADEMIC_DEPARTMENT_UPDATED,
+  academicDepartmentSearchableFields,
+} from './academicDepartment.constant';
 import { IAcademicDepartmentFilters } from './academicDepartment.interface';
 
 const insertIntoDB = async (
-  data: AcademicDepartment
+  data: AcademicDepartment,
 ): Promise<AcademicDepartment> => {
   const result = await prisma.academicDepartment.create({
     data,
@@ -15,12 +21,18 @@ const insertIntoDB = async (
       academicFaculty: true,
     },
   });
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_DEPARTMENT_CREATED,
+      JSON.stringify(result),
+    );
+  }
   return result;
 };
 
 const getAllAcademicDepartments = async (
   filters: IAcademicDepartmentFilters,
-  pagination: IPaginationOptions
+  pagination: IPaginationOptions,
 ): Promise<IGenericResponse<AcademicDepartment[]>> => {
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
@@ -86,7 +98,7 @@ const getSingleAcademicDepartment = async (id: string) => {
 };
 const updateSingleAcademicDepartment = async (
   id: string,
-  data: Partial<AcademicDepartment>
+  data: Partial<AcademicDepartment>,
 ): Promise<AcademicDepartment> => {
   const result = await prisma.academicDepartment.update({
     where: {
@@ -94,16 +106,28 @@ const updateSingleAcademicDepartment = async (
     },
     data,
   });
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_DEPARTMENT_UPDATED,
+      JSON.stringify(result),
+    );
+  }
   return result;
 };
 const deleteSingleAcademicDepartment = async (
-  id: string
+  id: string,
 ): Promise<AcademicDepartment> => {
   const result = await prisma.academicDepartment.delete({
     where: {
       id,
     },
   });
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_DEPARTMENT_DELETE,
+      JSON.stringify(result),
+    );
+  }
   return result;
 };
 

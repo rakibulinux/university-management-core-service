@@ -8,8 +8,8 @@ import sendResponse from '../../../shared/sendResponse';
 import { facultyFilterableFields } from './faculty.constant';
 import { FacultyService } from './faculty.service';
 
-const insertIntoDB = catchAsync(async (req: Request, res: Response) => {
-  const result = await FacultyService.insertIntoDB(req.body);
+const createFaculty = catchAsync(async (req: Request, res: Response) => {
+  const result = await FacultyService.createFaculty(req.body);
   sendResponse<Faculty>(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -112,7 +112,7 @@ const myCourses = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const FacultyController = {
-  insertIntoDB,
+  createFaculty,
   getAllFaculties,
   getSingleFaculty,
   updateSingleFaculty,

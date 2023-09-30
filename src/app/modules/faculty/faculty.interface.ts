@@ -38,3 +38,36 @@ export type IOfferedCourseSection = {
     classSchedules: OfferedCourseClassSchedule[];
   }[];
 };
+
+export type UserName = {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+};
+
+export type BloodGroup =
+  | 'A+'
+  | 'A-'
+  | 'B+'
+  | 'B-'
+  | 'AB+'
+  | 'AB-'
+  | 'O+'
+  | 'O-';
+
+export type IFaculty = {
+  id: string;
+  name: UserName;
+  gender: 'male' | 'female';
+  dateOfBirth: string;
+  email: string;
+  contactNo: string;
+  emergencyContactNo: string;
+  presentAddress: string;
+  permanentAddress: string;
+  bloodGroup?: BloodGroup;
+  designation: string;
+  academicDepartment: string;
+  academicFaculty: string;
+  profileImage?: string;
+};

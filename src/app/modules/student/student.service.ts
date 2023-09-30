@@ -19,6 +19,8 @@ const insertIntoDB = async (data: Student): Promise<Student> => {
       academicSemester: true,
     },
   });
+
+  console.log('From Insert into DB', result);
   return result;
 };
 
@@ -234,6 +236,27 @@ const getMyAcademicInfo = async (authUserId: string): Promise<any> => {
     course: groupByAcademicSemesterData,
   };
 };
+
+const createStudentFromEvent = async (e: any) => {
+  console.log('createStudentFromEvent', e);
+  const studentData: Partial<Student> = {
+    studentId: e.id,
+    firstName: e.name.firstName,
+    lastName: e.name.lastName,
+    middleName: e.name.middleName,
+    email: e.email,
+    contactNo: e.contactNo,
+    gender: e.gender,
+    bloodGroup: e.bloodGroup,
+    profileImage: e.profileImage,
+    academicSemesterId: e.academicSemester.syncId,
+    academicDepartmentId: e.academicDepartment.syncId,
+    academicFacultyId: e.academicFaculty.syncId,
+  };
+  await insertIntoDB(studentData as Student);
+  console.log('studentData', studentData);
+};
+
 export const StudentService = {
   insertIntoDB,
   getAllStudents,
@@ -243,4 +266,5 @@ export const StudentService = {
   myCourses,
   getMyCourseSchedules,
   getMyAcademicInfo,
+  createStudentFromEvent,
 };

@@ -20,7 +20,7 @@ router.delete(
 router.post(
   '/create-faculty',
   validateRequest(FacultyValidation.createFacultyZodSchema),
-  FacultyController.insertIntoDB,
+  FacultyController.createFaculty,
 );
 
 router.patch(

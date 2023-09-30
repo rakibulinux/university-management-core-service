@@ -3,21 +3,33 @@ import { paginationHelpers } from '../../../helpers/paginationHelper';
 import { IGenericResponse } from '../../../interfaces/common';
 import { IPaginationOptions } from '../../../interfaces/pagination';
 import prisma from '../../../shared/prisma';
-import { academicFacultySearchableFields } from './academicFaculty.constant';
+import { RedisClient } from '../../../shared/redis';
+import {
+  EVENT_ACADEMIC_FACULTY_CREATED,
+  EVENT_ACADEMIC_FACULTY_DELETE,
+  EVENT_ACADEMIC_FACULTY_UPDATED,
+  academicFacultySearchableFields,
+} from './academicFaculty.constant';
 import { IAcademicFacultyFilters } from './academicFaculty.interface';
 
 const insertIntoDB = async (
-  data: AcademicFaculty
+  data: AcademicFaculty,
 ): Promise<AcademicFaculty> => {
   const result = await prisma.academicFaculty.create({
     data,
   });
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_FACULTY_CREATED,
+      JSON.stringify(result),
+    );
+  }
   return result;
 };
 
 const getAllAcademicFaculties = async (
   filters: IAcademicFacultyFilters,
-  pagination: IPaginationOptions
+  pagination: IPaginationOptions,
 ): Promise<IGenericResponse<AcademicFaculty[]>> => {
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
@@ -77,7 +89,7 @@ const getSingleAcademicFaculty = async (id: string) => {
 };
 const updateSingleAcademicFaculty = async (
   id: string,
-  data: Partial<AcademicFaculty>
+  data: Partial<AcademicFaculty>,
 ): Promise<AcademicFaculty> => {
   const result = await prisma.academicFaculty.update({
     where: {
@@ -85,16 +97,28 @@ const updateSingleAcademicFaculty = async (
     },
     data,
   });
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_FACULTY_UPDATED,
+      JSON.stringify(result),
+    );
+  }
   return result;
 };
 const deleteSingleAcademicFaculty = async (
-  id: string
+  id: string,
 ): Promise<AcademicFaculty> => {
   const result = await prisma.academicFaculty.delete({
     where: {
       id,
     },
   });
+  if (result) {
+    await RedisClient.publish(
+      EVENT_ACADEMIC_FACULTY_DELETE,
+      JSON.stringify(result),
+    );
+  }
   return result;
 };
 

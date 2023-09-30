@@ -6,15 +6,15 @@ import { AcademicFacultyValidation } from './academicFaculty.validation';
 const router = express.Router();
 
 router.post(
-  '/create-faculty',
+  '/',
   validateRequest(AcademicFacultyValidation.createAcademicFacultyZodSchema),
-  AcademicFacultyController.insertIntoDB
+  AcademicFacultyController.insertIntoDB,
 );
 
 router.patch(
   '/:id',
   validateRequest(AcademicFacultyValidation.updateAcademicFacultyZodSchema),
-  AcademicFacultyController.updateSingleAcademicFaculty
+  AcademicFacultyController.updateSingleAcademicFaculty,
 );
 router.get('/:id', AcademicFacultyController.getSingleAcademicFaculty);
 router.delete('/:id', AcademicFacultyController.deleteSingleAcademicFaculty);
