@@ -6,15 +6,15 @@ const router = express.Router();
 router.patch(
   '/:id',
   //   validateRequest(StudentSemesterPaymentValidation.updateStudentSemesterPaymentZodSchema),
-  StudentSemesterPaymentController.updateSingleStudentSemesterPayment
+  StudentSemesterPaymentController.updateSingleStudentSemesterPayment,
 );
 router.delete(
   '/:id',
-  StudentSemesterPaymentController.deleteSingleStudentSemesterPayment
+  StudentSemesterPaymentController.deleteSingleStudentSemesterPayment,
 );
 router.get(
   '/:id',
-  StudentSemesterPaymentController.getSingleStudentSemesterPayment
+  StudentSemesterPaymentController.getSingleStudentSemesterPayment,
 );
 router.get('/', StudentSemesterPaymentController.getAllStudentSemesterPayments);
 

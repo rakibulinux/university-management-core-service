@@ -1,28 +1,29 @@
 import express from 'express';
 import { StudentEnrolledCourseMarkController } from './studentEnrolledCourseMark.controller';
+import auth from '../../middlewares/auth';
+import { ENUM_USER_ROLE } from '../../../enums/user';
 
 const router = express.Router();
 
 router.patch(
   '/update-mark',
-  StudentEnrolledCourseMarkController.updateSingleStudentEnrolledCourseMark
+  auth(ENUM_USER_ROLE.FACULTY),
+  StudentEnrolledCourseMarkController.updateSingleStudentEnrolledCourseMark,
 );
 router.patch(
   '/update-final-mark',
-  StudentEnrolledCourseMarkController.updateFinalMarks
+  auth(ENUM_USER_ROLE.FACULTY),
+  StudentEnrolledCourseMarkController.updateFinalMarks,
 );
 
-router.delete(
-  '/:id',
-  StudentEnrolledCourseMarkController.deleteSingleStudentEnrolledCourseMark
-);
 router.get(
-  '/:id',
-  StudentEnrolledCourseMarkController.getSingleStudentEnrolledCourseMark
+  '/my-marks',
+  auth(ENUM_USER_ROLE.STUDENT),
+  StudentEnrolledCourseMarkController.getMyCourseMarks,
 );
 router.get(
   '/',
-  StudentEnrolledCourseMarkController.getAllStudentEnrolledCourseMarks
+  StudentEnrolledCourseMarkController.getAllStudentEnrolledCourseMarks,
 );
 
 export const StudentEnrolledMarkRoutes = router;

@@ -15,6 +15,7 @@ import prisma from '../../../shared/prisma';
 import { studentEnrolledCourseMarkSearchableFields } from './studentEnrolledCourseMark.constant';
 import { IStudentEnrolledCourseMarkFilterRequest } from './studentEnrolledCourseMark.interface';
 import { StudentEnrolledCourseMarkUtils } from './studentEnrolledCourseMark.utils';
+import { JwtPayload } from 'jsonwebtoken';
 
 const createStudentCourseDefaultMark = async (
   transactionClient: Omit<
@@ -25,7 +26,7 @@ const createStudentCourseDefaultMark = async (
     studentId: string;
     studentEnrolledCourseId: string;
     academicSemesterId: string;
-  }
+  },
 ) => {
   const isMidtermExsists =
     await transactionClient.studentEnrolledCourseMark.findFirst({
@@ -106,12 +107,9 @@ const createStudentCourseDefaultMark = async (
   }
 };
 
-// const updateStudnetMark = async (payload: any) => {
-//   console.log(payload);
-// };
 const getAllStudentEnrolledCourseMarks = async (
   filters: IStudentEnrolledCourseMarkFilterRequest,
-  pagination: IPaginationOptions
+  pagination: IPaginationOptions,
 ): Promise<IGenericResponse<StudentEnrolledCourseMark[]>> => {
   const { searchTerm, ...filtersData } = filters;
   const { page, limit, skip, sortBy, sortOrder } =
@@ -161,14 +159,6 @@ const getAllStudentEnrolledCourseMarks = async (
   };
 };
 
-const getSingleStudentEnrolledCourseMark = async (id: string) => {
-  const result = await prisma.studentEnrolledCourseMark.findUnique({
-    where: {
-      id,
-    },
-  });
-  return result;
-};
 const updateSingleStudentEnrolledCourseMark = async (data: {
   studentId: string;
   academicSemesterId: string;
@@ -198,12 +188,12 @@ const updateSingleStudentEnrolledCourseMark = async (data: {
   if (!studentEnrolledCourseMarks) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'No Marks find for this student'
+      'No Marks find for this student',
     );
   }
   const result =
     await StudentEnrolledCourseMarkUtils.getStudentEnrolledCourseMarkGrade(
-      marks
+      marks,
     );
 
   const updateStudentMarks = await prisma.studentEnrolledCourseMark.update({
@@ -218,7 +208,12 @@ const updateSingleStudentEnrolledCourseMark = async (data: {
   return updateStudentMarks;
 };
 
-const updateFinalMarks = async (payload: any) => {
+const updateFinalMarks = async (payload: {
+  studentId: string;
+  academicSemesterId: string;
+  courseId: string;
+}) => {
+  console.log(payload);
   const { studentId, academicSemesterId, courseId } = payload;
   const studentEnrolledCourse = await prisma.studentEnrolledCourse.findFirst({
     where: {
@@ -237,7 +232,7 @@ const updateFinalMarks = async (payload: any) => {
   if (!studentEnrolledCourse) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'Student Enrolled Course data not found'
+      'Student Enrolled Course data not found',
     );
   }
 
@@ -260,7 +255,7 @@ const updateFinalMarks = async (payload: any) => {
   if (!studentEnrolledCourseMarks.length) {
     throw new ApiError(
       httpStatus.BAD_REQUEST,
-      'No Marks find for this student'
+      'No Marks find for this student',
     );
   }
   const midTermMarkes =
@@ -275,7 +270,7 @@ const updateFinalMarks = async (payload: any) => {
 
   const result =
     await StudentEnrolledCourseMarkUtils.getStudentEnrolledCourseMarkGrade(
-      totalFinalMarkes
+      totalFinalMarkes,
     );
 
   await prisma.studentEnrolledCourse.updateMany({
@@ -344,22 +339,62 @@ const updateFinalMarks = async (payload: any) => {
   return grades;
 };
 
-const deleteSingleStudentEnrolledCourseMark = async (
-  id: string
-): Promise<StudentEnrolledCourseMark> => {
-  const result = await prisma.studentEnrolledCourseMark.delete({
+const getMyCourseMarks = async (
+  filters: IStudentEnrolledCourseMarkFilterRequest,
+  options: IPaginationOptions,
+  authUser: JwtPayload | null,
+): Promise<IGenericResponse<StudentEnrolledCourseMark[]>> => {
+  const { limit, page } = paginationHelpers.calculatePagination(options);
+  if (!authUser) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User Not Found');
+  }
+  const student = await prisma.student.findFirst({
     where: {
-      id,
+      studentId: authUser.id,
     },
   });
-  return result;
+
+  if (!student) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'Student not found');
+  }
+
+  const marks = await prisma.studentEnrolledCourseMark.findMany({
+    where: {
+      student: {
+        id: student.id,
+      },
+      academicSemester: {
+        id: filters.academicSemesterId,
+      },
+      studentEnrolledCourse: {
+        course: {
+          id: filters.courseId,
+        },
+      },
+    },
+    include: {
+      studentEnrolledCourse: {
+        include: {
+          course: true,
+        },
+      },
+    },
+  });
+
+  return {
+    meta: {
+      total: marks.length,
+      page,
+      limit,
+    },
+    data: marks,
+  };
 };
 
 export const StudentEnrolledCourseMarkService = {
   createStudentCourseDefaultMark,
   getAllStudentEnrolledCourseMarks,
-  getSingleStudentEnrolledCourseMark,
   updateSingleStudentEnrolledCourseMark,
-  deleteSingleStudentEnrolledCourseMark,
+  getMyCourseMarks,
   updateFinalMarks,
 };

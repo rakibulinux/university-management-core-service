@@ -8,20 +8,6 @@ import sendResponse from '../../../shared/sendResponse';
 import { studentEnrolledCourseMarkFilterableFields } from './studentEnrolledCourseMark.constant';
 import { StudentEnrolledCourseMarkService } from './studentEnrolledCourseMark.service';
 
-// const updateStudnetMark = catchAsync(async (req: Request, res: Response) => {
-//   const result =
-//     await StudentEnrolledCourseMarkService.updateSingleStudentEnrolledCourseMark(
-//       req.params.id,
-//       req.body
-//     );
-//   sendResponse(res, {
-//     statusCode: httpStatus.OK,
-//     success: true,
-//     message: 'Update A Student Mark Successfully!',
-//     data: result,
-//   });
-// });
-
 const getAllStudentEnrolledCourseMarks = catchAsync(
   async (req: Request, res: Response) => {
     const filters = pick(req.query, studentEnrolledCourseMarkFilterableFields);
@@ -29,7 +15,7 @@ const getAllStudentEnrolledCourseMarks = catchAsync(
     const result =
       await StudentEnrolledCourseMarkService.getAllStudentEnrolledCourseMarks(
         filters,
-        pagination
+        pagination,
       );
 
     sendResponse<StudentEnrolledCourseMark[]>(res, {
@@ -39,32 +25,30 @@ const getAllStudentEnrolledCourseMarks = catchAsync(
       meta: result.meta,
       data: result.data,
     });
-  }
+  },
 );
-const getSingleStudentEnrolledCourseMark = catchAsync(
-  async (req: Request, res: Response) => {
-    const result =
-      await StudentEnrolledCourseMarkService.getSingleStudentEnrolledCourseMark(
-        req.params.id
-      );
-
-    sendResponse<StudentEnrolledCourseMark>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: `${
-        result
-          ? 'Get A Single Student Enrolled Course Mark Successfully!'
-          : `No Student Enrolled Course Mark Find For This ID: ${req.params.id}`
-      }`,
-      data: result,
-    });
-  }
-);
+const getMyCourseMarks = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, studentEnrolledCourseMarkFilterableFields);
+  const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+  const user = req.user;
+  const result = await StudentEnrolledCourseMarkService.getMyCourseMarks(
+    filters,
+    options,
+    user,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Student course marks fetched successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
 const updateSingleStudentEnrolledCourseMark = catchAsync(
   async (req: Request, res: Response) => {
     const result =
       await StudentEnrolledCourseMarkService.updateSingleStudentEnrolledCourseMark(
-        req.body
+        req.body,
       );
     sendResponse<StudentEnrolledCourseMark>(res, {
       statusCode: httpStatus.OK,
@@ -72,39 +56,24 @@ const updateSingleStudentEnrolledCourseMark = catchAsync(
       message: 'Update A Single Student Enrolled Course Mark Successfully!',
       data: result,
     });
-  }
+  },
 );
 const updateFinalMarks = catchAsync(async (req: Request, res: Response) => {
   const result = await StudentEnrolledCourseMarkService.updateFinalMarks(
-    req.body
+    req.body,
   );
-  sendResponse<StudentEnrolledCourseMark>(res, {
+  sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Update A Single Student Enrolled Course Mark Successfully!',
     data: result,
   });
 });
-const deleteSingleStudentEnrolledCourseMark = catchAsync(
-  async (req: Request, res: Response) => {
-    const result =
-      await StudentEnrolledCourseMarkService.deleteSingleStudentEnrolledCourseMark(
-        req.params.id
-      );
-
-    sendResponse<StudentEnrolledCourseMark>(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: 'Delete A Single Student Enrolled Course Mark Successfully!',
-      data: result,
-    });
-  }
-);
 
 export const StudentEnrolledCourseMarkController = {
   getAllStudentEnrolledCourseMarks,
-  getSingleStudentEnrolledCourseMark,
+  getMyCourseMarks,
   updateSingleStudentEnrolledCourseMark,
-  deleteSingleStudentEnrolledCourseMark,
+
   updateFinalMarks,
 };
